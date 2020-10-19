@@ -1,7 +1,6 @@
 // Задача:
 //Создание и рендер разметки по массиву данных и предоставленному шаблону.
 import images from './gallery-items.js';
-console.log(images);
 
 const creatImgItem = array => {
   return array
@@ -33,6 +32,49 @@ galleryEl.insertAdjacentHTML('beforeend', imagesList);
 // Открытие модального окна по клику на элементе галереи.
 // Подмена значения атрибута src элемента img.lightbox__image.
 
+// функция перелистывания вправо
+const flipRightImage = event => {
+  if (event.code !== 'ArrowRight') {
+    return;
+  }
+
+  const arePicturesSame = image => {
+    return image.original === lightboxImgEl.getAttribute('src');
+  };
+  let index = images.findIndex(arePicturesSame);
+  index += 1;
+  if (index < images.length) {
+    lightboxImgEl.setAttribute('src', images[index].original);
+    lightboxImgEl.setAttribute('alt', images[index].description);
+  } else {
+    return;
+  }
+};
+
+document.body.addEventListener('keydown', flipRightImage);
+
+//функция перелистывания влево
+const flipLeftImage = event => {
+  if (event.code !== 'ArrowLeft') {
+    return;
+  }
+
+  const arePicturesSame = image => {
+    return image.original === lightboxImgEl.getAttribute('src');
+  };
+  let index = images.findIndex(arePicturesSame);
+  index -= 1;
+  if (index > -1) {
+    lightboxImgEl.setAttribute('src', images[index].original);
+    lightboxImgEl.setAttribute('alt', images[index].description);
+  } else {
+    return;
+  }
+};
+
+document.body.addEventListener('keydown', flipLeftImage);
+
+// вызов модального окна и подстановка картинки
 const lightboxEl = document.querySelector('.js-lightbox');
 const lightboxImgEl = lightboxEl.querySelector('.lightbox__image');
 
@@ -44,14 +86,11 @@ const displayModal = event => {
   lightboxEl.classList.add('is-open');
   lightboxImgEl.setAttribute('src', event.target.dataset.source);
   lightboxImgEl.setAttribute('alt', event.target.getAttribute('alt'));
-  lightboxEl.querySelector('i').remove();
+  flipRightImage;
+  flipLeftImage;
 };
 
 galleryEl.addEventListener('click', displayModal);
-// Примечание:
-// Не разобрался, что делать с тегом "i" и какое его предназначение.
-// Ко всему он перекрывал иконку close.
-// Поэтому при открытиии модалки просто его удаляю, а при закрыти добавляю обратно)
 
 // Задача:
 // Закрытие модального окна по клику на кнопку button[data-action="close-lightbox"].
@@ -72,17 +111,8 @@ const closeLightbox = event => {
   }
   lightboxEl.classList.remove('is-open');
   lightboxImgEl.setAttribute('src', '');
-  lightboxEl.insertAdjacentHTML(
-    'beforeend',
-    '<i class="material-icons">close</i>',
-  );
 };
 document.body.addEventListener('click', closeLightbox);
-
-// Примечание:
-// Вместо lightbox__overlay пришлось использовать lightbox__content,
-// так как при клике на фон за модалкой, всегда попадал именно в lightbox__content,
-// не в lightbox__overlay
 
 //Дополнительное задание: Закрытие модального окна по нажатию клавиши ESC
 
@@ -101,34 +131,3 @@ const closeLightboxByKey = event => {
 };
 
 document.body.addEventListener('keydown', closeLightboxByKey);
-
-// Дополнительное задание:
-// Пролистывание изображений галереи в открытом модальном окне
-// клавишами "влево" и "вправо".
-
-const flipRightImage = event => {
-  if (
-    !(lightboxEl.classList.contains('is-open') && event.code === 'ArrowRight')
-  ) {
-    return;
-  }
-  let index = 0;
-  const arePicturesSame = () => {
-    return lightboxImgEl.getAttribute('src') === images[index].original;
-  };
-  index = images.findIndex(arePicturesSame);
-  if (index !== images.length) {
-    index += 1;
-    lightboxImgEl.setAttribute('src', images[index].original);
-    lightboxImgEl.setAttribute('alt', images[index].description);
-  } else {
-    return;
-  }
-};
-
-document.body.addEventListener('keydown', flipRightImage);
-
-console.log(lightboxImgEl.getAttribute('src'));
-console.log(images[1].original);
-
-// Не могу разобраться почему lightboxImgEl.getAttribute('src') ничего не возвращает...
