@@ -32,47 +32,41 @@ galleryEl.insertAdjacentHTML('beforeend', imagesList);
 // Открытие модального окна по клику на элементе галереи.
 // Подмена значения атрибута src элемента img.lightbox__image.
 
+// Функция сравнения картинки для определения индекса
+const arePicturesSame = image => {
+  return image.original === lightboxImgEl.getAttribute('src');
+};
+
 // функция перелистывания вправо
-const flipRightImage = event => {
-  if (event.code !== 'ArrowRight') {
+const scrollImage = event => {
+  if (event.code !== 'ArrowRight' && event.code !== 'ArrowLeft') {
     return;
   }
 
-  const arePicturesSame = image => {
-    return image.original === lightboxImgEl.getAttribute('src');
-  };
   let index = images.findIndex(arePicturesSame);
-  index += 1;
+
+  if (event.code === 'ArrowRight') {
+    index += 1;
+  } else {
+    index -= 1;
+  }
+  if (index < 0) {
+    lightboxImgEl.setAttribute('src', images[images.length - 1].original);
+    lightboxImgEl.setAttribute('alt', images[images.length - 1].description);
+    return;
+  }
+
   if (index < images.length) {
     lightboxImgEl.setAttribute('src', images[index].original);
     lightboxImgEl.setAttribute('alt', images[index].description);
   } else {
-    return;
+    lightboxImgEl.setAttribute('src', images[0].original);
+    lightboxImgEl.setAttribute('alt', images[0].description);
   }
 };
 
-document.body.addEventListener('keydown', flipRightImage);
-
-//функция перелистывания влево
-const flipLeftImage = event => {
-  if (event.code !== 'ArrowLeft') {
-    return;
-  }
-
-  const arePicturesSame = image => {
-    return image.original === lightboxImgEl.getAttribute('src');
-  };
-  let index = images.findIndex(arePicturesSame);
-  index -= 1;
-  if (index > -1) {
-    lightboxImgEl.setAttribute('src', images[index].original);
-    lightboxImgEl.setAttribute('alt', images[index].description);
-  } else {
-    return;
-  }
-};
-
-document.body.addEventListener('keydown', flipLeftImage);
+document.body.addEventListener('keydown', scrollImage);
+document.body.addEventListener('keydown', scrollImage);
 
 // вызов модального окна и подстановка картинки
 const lightboxEl = document.querySelector('.js-lightbox');
@@ -86,8 +80,7 @@ const displayModal = event => {
   lightboxEl.classList.add('is-open');
   lightboxImgEl.setAttribute('src', event.target.dataset.source);
   lightboxImgEl.setAttribute('alt', event.target.getAttribute('alt'));
-  flipRightImage;
-  flipLeftImage;
+  scrollImage;
 };
 
 galleryEl.addEventListener('click', displayModal);
